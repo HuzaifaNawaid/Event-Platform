@@ -1,0 +1,59 @@
+model Event {
+  id            String        @id @default(cuid())
+  name          String
+  description   String
+  date          DateTime
+  accountNumber String
+  status        String        @default("upcoming") // upcoming | active | closed
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  applications  Application[]
+
+  @@map("event")
+}
+
+model Application {
+  id                    String       @id @default(cuid())
+  userId                String
+  user                  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventId               String
+  event                 Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  university            String
+  formData              Json?
+  paymentScreenshotUrl  String
+  status                String       @default("pending") // pending | approved | rejected
+  rejectionReason       String?
+  submittedAt           DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+
+  attendance            Attendance?
+  certificate           Certificate?
+
+  @@index([userId])
+  @@index([eventId])
+  @@map("application")
+}
+
+model Attendance {
+  id            String      @id @default(cuid())
+  applicationId String      @unique
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  qrToken       String      @unique
+  scanned       Boolean     @default(false)
+  scannedAt     DateTime?
+  scannedBy     String?
+  createdAt     DateTime    @default(now())
+
+  @@map("attendance")
+}
+
+model Certificate {
+  id               String      @id @default(cuid())
+  applicationId    String      @unique
+  application      Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  printedName      String
+  verificationSlug String      @unique
+  issuedAt         DateTime    @default(now())
+
+  @@map("certificate")
+}
