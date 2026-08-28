@@ -1,0 +1,24 @@
+{
+  "name": "@aws-platform/auth",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@aws-platform/db": "workspace:*",
+    "@aws-platform/env": "workspace:*",
+    "better-auth": "catalog:",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@aws-platform/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}
