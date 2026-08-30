@@ -122,3 +122,5 @@ aws-platform/
 - `bun run docker:up`: Build and start the Docker Compose stack
 - `bun run docker:logs`: Tail logs from the Docker Compose stack
 - `bun run docker:down`: Stop the Docker Compose stack
+
+Remove access from main branch and fix whole website structure, seprate backend and frontend folder other wise we will cooked.
