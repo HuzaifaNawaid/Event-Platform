@@ -16,6 +16,15 @@ import { authClient } from "@/lib/auth-client";
 export default function UserMenu() {
   const navigate = useNavigate();
   const { data: session, isPending } = authClient.useSession();
+  const handleSignOut = async () => {       //added a function to handle sign out
+    await authClient.signOut({
+      fetchOptions:{
+        onSuccess: () => {
+          navigate("/login",{replace:true});
+        }
+      }
+    })
+  }
 
   if (isPending) {
     return <Skeleton className="h-9 w-24" />;
