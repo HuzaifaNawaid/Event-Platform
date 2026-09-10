@@ -40,11 +40,11 @@ Create your branch based on the module you're assigned to:
 | Module | Owner(s) | Branch Name |
 |---|---|---|
 | Landing + Event Detail Pages | Laiba, Taha | `feature/landing-event-pages` |
-| Auth Setup (Sign Up/In, Session) | Samar, Sameer | `feature/auth-setup` |
-| Registration Form Backend | Waleed | `feature/registration-backend` |
-| User Dashboard + QR View | Samar, Sameer | `feature/user-dashboard` |
+| Auth Setup (Sign Up/In, Session) | Waleed, Sameer | `feature/auth-setup` |
+| Registration Form Backend | Amaan | `feature/registration-backend` |
+| User Dashboard + QR View | Waleed, Sameer | `feature/user-dashboard` |
 | Admin Portal | Umer Gul, Bilal | `feature/admin-portal` |
-| Payment OCR + Certificates | Umer Gul, Bilal, Samar, Sameer | `feature/payment-certificates` |
+| Payment OCR + Certificates | Umer Gul, Bilal, Waleed, Sameer | `feature/payment-certificates` |
 
 > **Note on Admin Portal:** This module is large, so it can be split into 2 PRs from the same branch instead of one giant PR — e.g. "Applications view + Approve/Reject" as one PR, and "QR Scanner + Attendance" as a second PR. You still work on one branch (`feature/admin-portal`); you just open separate PRs at logical checkpoints instead of waiting for the whole module to finish.
 

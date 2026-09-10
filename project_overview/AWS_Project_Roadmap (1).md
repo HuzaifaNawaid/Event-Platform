@@ -15,8 +15,8 @@ A full-stack platform for the dev society to manage events end-to-end: event lis
 |---|---|---|---|---|---|
 | 0 | **Huzaifa Nawaid** | Project scaffold, repo push, Prisma schema + basic tables on Neon DB | Setup (one-time) | — | Phase 0 |
 | 1 | **Laiba, Taha** | Landing page, Event detail page, Registration form (UI only) | Frontend | Landing & Event Pages | Phase 1 + 3 |
-| 2 | **Amaan, Sameer** | Sign Up/Sign In, Session handling, User Profile, Dashboard (shell: events list + Register entry point → later: status + QR + certificate view) | Frontend + Backend | User Portal | Phase 1 + 2 + 5 |
-| 3 | **Waleed** | Registration form backend logic, DB save, Cloudinary upload handling, confirmation email (Resend) | Backend | User Portal | Phase 3 |
+| 2 | **Waleed, Sameer** | Sign Up/Sign In, Session handling, User Profile, Dashboard (shell: events list + Register entry point → later: status + QR + certificate view) | Frontend + Backend | User Portal | Phase 1 + 2 + 5 |
+| 3 | **Amaan** | Registration form backend logic, DB save, Cloudinary upload handling, confirmation email (Resend) | Backend | User Portal | Phase 3 |
 | 4 | **Umer Gul + Muhammad Bilal** | Admin Portal — Applications view, Approve/Reject logic, QR code generation for attendance, certificate bulk generation trigger, payment proof OCR/bank statement matching | Frontend + Backend | Admin Portal | Phase 4, 5 |
 
 ---
@@ -30,7 +30,7 @@ A full-stack platform for the dev society to manage events end-to-end: event lis
 - [ ] Landing page — events list (next/prev navigation)
 - [ ] Event detail page (click event → details + Register button)
 
-**Amaan, Sameer (Frontend + Backend):**
+**Waleed, Sameer (Frontend + Backend):**
 - [ ] Better Auth setup — Sign Up / Sign In
 - [ ] Session handling / protected routes
 
@@ -39,31 +39,31 @@ A full-stack platform for the dev society to manage events end-to-end: event lis
 ---
 
 ### Phase 2 — User Portal Dashboard Shell — **3 days**
-**Owner: Amaan, Sameer**
+**Owner: Waleed, Sameer**
 
 - [ ] Dashboard/home page — shows the **events list** inside the portal (same event data as the landing page), each with a Register button
 - [ ] Routing: after sign-in/sign-up (new or returning user) → redirect **directly here**, not to a form
 - [ ] Basic User Profile page shell
 
-> 🔗 This is a prerequisite for Phase 3 — the registration form is opened from this dashboard, so the shell has to exist before Laiba/Taha and Waleed can wire up the registration flow. Status view, QR view, and certificate view are built later, in Phase 5, once there's real approved/attended data to show.
+> 🔗 This is a prerequisite for Phase 3 — the registration form is opened from this dashboard, so the shell has to exist before Laiba/Taha and Amaan can wire up the registration flow. Status view, QR view, and certificate view are built later, in Phase 5, once there's real approved/attended data to show.
 
 ---
 
 ### Phase 3 — Registration Flow (Sign-In + Dashboard Gated) — Sequential, after Phase 2 — **7 days**
-**Owners: Laiba, Taha (Frontend) + Waleed (Backend)**
+**Owners: Laiba, Taha (Frontend) + Amaan (Backend)**
 
 Frontend (Laiba, Taha):
 - [ ] Register button **on the Phase 2 dashboard shell** (not the public event detail page) opens the registration form
 - [ ] Registration form UI (name, email, university, event-specific fields, screenshot upload)
 - [ ] On submit → stay on / return to the dashboard, which shows the application status as `pending`
 
-Backend (Waleed):
+Backend (Amaan):
 - [ ] Form submission API (tRPC procedure) — link application to signed-in user's id
 - [ ] Payment screenshot upload to Cloudinary
 - [ ] Save application record to Postgres (status: `pending`)
 - [ ] Confirmation email via Resend ("application received")
 
-> 🔗 Note: Laiba/Taha and Waleed need to sync field names (form fields = backend expected fields). Fully testable only once Phase 2's dashboard shell is in place to host the Register trigger.
+> 🔗 Note: Laiba/Taha and Amaan need to sync field names (form fields = backend expected fields). Fully testable only once Phase 2's dashboard shell is in place to host the Register trigger.
 
 ---
 
@@ -85,9 +85,9 @@ Backend (Waleed):
 ---
 
 ### Phase 5 — Dashboard Completion + Payment Proof + Certificates — **8 days**
-**Owners: Amaan, Sameer (dashboard: status, QR view, certificate view) | Umer Gul, Bilal (payment OCR, certificate generation)**
+**Owners: Waleed, Sameer (dashboard: status, QR view, certificate view) | Umer Gul, Bilal (payment OCR, certificate generation)**
 
-Dashboard completion (Amaan, Sameer):
+Dashboard completion (Waleed, Sameer):
 - [ ] Full status states on dashboard (pending/approved/rejected, incl. rejection reason)
 - [ ] QR code view on dashboard, shown once application is approved
 - [ ] Certificate view on dashboard, once issued

@@ -88,4 +88,4 @@ All of the above are persisted in **PostgreSQL** (Neon) via Prisma — nothing e
 ## 8. Open Items (to confirm before build)
 
 - [ ] Exact application form fields beyond name/university (per-event custom fields?)
-- [ ] Certificate template/design + PDF vs image generation approach
+- [ ] Certificate template/design + PDF vs image generation approach.

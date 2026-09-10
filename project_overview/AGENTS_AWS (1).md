@@ -121,3 +121,4 @@ This scans the repo's tokens, components, and Tailwind config so the agent has r
 
 - [ ] Assign module owners per team member
 - [ ] Confirm Neon project + env vars are shared securely (not in the repo)
+- [ ] Certificate template/design + PDF vs image generation approach.
