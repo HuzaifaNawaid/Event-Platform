@@ -5,7 +5,7 @@ import { Label } from "@aws-platform/ui/components/label";
 import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { UserPlus, Eye, EyeOff, Loader2 } from "lucide-react";
 import z from "zod";
 
 import { authClient } from "@/lib/auth-client";
@@ -57,6 +57,9 @@ export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () 
     <div className="mx-auto w-full max-w-md p-6">
       <div className="rounded-xl border border-border bg-card p-8 shadow-sm">
         <div className="mb-6 text-center space-y-1">
+          <div className="mx-auto flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary border border-primary/20">
+            <UserPlus className="size-5"/>
+          </div>
           <h1 className="text-2xl font-bold tracking-tight text-card-foreground">Create Account</h1>
           <p className="text-xs text-muted-foreground">Get started with your AWS Builder Group Bahria University</p>
         </div>

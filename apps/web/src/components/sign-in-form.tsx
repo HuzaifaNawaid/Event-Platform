@@ -5,7 +5,7 @@ import { Label } from "@aws-platform/ui/components/label";
 import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { IdCard ,Eye, EyeOff, Loader2 } from "lucide-react";    //imported eye icon
 import z from "zod";
 
 import { authClient } from "@/lib/auth-client";
@@ -54,6 +54,10 @@ export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () 
     <div className="mx-auto w-full max-w-md p-6">
       <div className="rounded-xl border border-border bg-card p-8 shadow-sm">
         <div className="mb-6 text-center space-y-1">
+                 {/* Added a credit card icon to the sign-in form*/}
+          <div className="mx-auto flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary border-primary/20">
+            <IdCard className="size-5" />         
+          </div>
           <h1 className="text-2xl font-bold tracking-tight text-card-foreground">Welcome Back</h1>
           <p className="text-xs text-muted-foreground">Sign in to manage your events</p>
         </div>
