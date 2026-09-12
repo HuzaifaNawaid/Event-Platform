@@ -45,6 +45,8 @@
 	"dependencies": {
 		"@aws-platform/env": "workspace:*",
 		"dotenv": "catalog:",
+		"framer-motion": "^13.2.0",
+		"gsap": "^3.15.0",
 		"zod": "catalog:"
 	},
 	"devDependencies": {
