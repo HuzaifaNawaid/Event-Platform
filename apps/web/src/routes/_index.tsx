@@ -3,9 +3,9 @@ import { useEffect, useRef } from "react";
 import type { Route } from "./+types/_index";
 import { Navbar } from "@/components/landing-page/navbar";
 import { Hero } from "@/components/landing-page/hero";
-import { Divisions } from "@/components/landing-page/divisions";
+import { Manifesto } from "@/components/landing-page/manifesto";
 import { Events } from "@/components/landing-page/events";
-import { Team } from "@/components/landing-page/team";
+import { Stats } from "@/components/landing-page/stats";
 import { Footer } from "@/components/landing-page/footer";
 
 export function meta({}: Route.MetaArgs) {
@@ -31,27 +31,11 @@ export default function Index() {
       className="bg-[#030303] text-[#ededed] font-['Plus_Jakarta_Sans',sans-serif] selection:bg-[#FF9900] selection:text-black overflow-x-hidden antialiased"
     >
       <Navbar />
-
       <Hero />
-
-      {/* INFINITE GREETING MARQUEE STRIP */}
-      <div className="py-8 border-y border-white/10 bg-[#050505] overflow-hidden whitespace-nowrap">
-        <div className="inline-flex gap-12 animate-[marquee_25s_linear_infinite] text-white/30 font-['Syne'] font-bold text-xl uppercase tracking-widest">
-          <span>Hello</span> • <span>Namaste</span> • <span>Hola</span> • <span>Bonjour</span> • <span>Nǐn hǎo</span> • <span>Olá</span> • <span>Shalom</span> • <span>Ciao</span> • <span>Aloha</span> • <span>Xin Chào</span> • <span>Salaam</span> • <span>Zdraveĭte</span>
-        </div>
-      </div>
-
-      <Divisions />
+      <Manifesto />
+      <Stats />
       <Events />
-      <Team />
       <Footer />
-
-      <style>{`
-        @keyframes marquee {
-          0% { transform: translateX(0%); }
-          100% { transform: translateX(-50%); }
-        }
-      `}</style>
     </div>
   );
 }
