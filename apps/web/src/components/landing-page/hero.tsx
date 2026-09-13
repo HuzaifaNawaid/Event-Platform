@@ -511,7 +511,7 @@ export function Hero() {
               {/* CORE */}
               <div className="absolute -top-3 -right-2 sm:-top-5 sm:-right-4 z-40 rotate-12 cursor-pointer hover:rotate-45 transition-transform duration-300">
                 <span className="bg-[#10b981] text-black font-extrabold font-mono text-[9px] sm:text-[11px] px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-md">
-                  ✦ CORE
+                  ✦ BUKC
                 </span>
               </div>
             </div>
