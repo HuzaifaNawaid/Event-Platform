@@ -392,7 +392,7 @@ export function Hero() {
 
       <main
         ref={heroRef}
-        className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-8 py-8 lg:py-24 select-none overflow-hidden"
+        className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-8 py-8 lg:py-16 select-none overflow-hidden"
         id="hero-container"
       >
         <div className="relative z-30 flex flex-col items-center justify-center text-center max-w-[1400px] mx-auto w-full px-2">
