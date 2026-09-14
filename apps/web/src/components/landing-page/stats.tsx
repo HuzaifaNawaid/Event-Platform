@@ -147,7 +147,7 @@ const STATS = [
     textColor: "#FFFFFF",
   },
   {
-    value: 1,
+    value: 14,
     suffix: "",
     label: "Events",
     desc: "Online and onsite hands-on workshops, deep dives and in-person meetups hosted this year.",

@@ -66,7 +66,7 @@ function unwrapRevealWords(root: HTMLElement) {
   root.normalize();
 }
 
-const WORDMARK_TEXT = "AWSSBGBUKC";
+const WORDMARK_TEXT = "AWSSBGBAHRIA";
 
 const SOCIAL_LINKS = [
   { label: "LinkTree",  href: "http://linktr.ee/awscloudclub_bahria" },
@@ -250,10 +250,10 @@ export function Footer() {
             <div>
               <div>Mail Us</div>
               <a
-                href="mailto:hi@aws-sbgbu.com"
+                href="mailto:info@aws-sbgbu.com"
                 className="mt-1 inline-block hover:opacity-70 transition-opacity"
               >
-                hi@aws-sbgbu.com
+                info@aws-sbgbu.com
               </a>
             </div>
             <div className="sm:text-right">
@@ -273,7 +273,7 @@ export function Footer() {
             className="text-black text-center select-none mt-8 sm:mt-12 lg:mt-14"
             style={{
               fontFamily: "'Anton', sans-serif",
-              fontSize: "clamp(3rem, 16vw, 20rem)",
+              fontSize: "clamp(3rem, 15vw, 20rem)",
               lineHeight: 0.85,
               letterSpacing: "-0.02em",
             }}
