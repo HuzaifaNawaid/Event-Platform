@@ -281,7 +281,6 @@ export function Manifesto() {
         });
       }
 
-      // Kill any in-flight pill tweens to avoid stacking on rapid replay
       gsap.killTweensOf([stickerRef.current, deepTechRef.current]);
 
       const pillTl = gsap.timeline();
@@ -405,7 +404,6 @@ export function Manifesto() {
     updateLayout();
     window.addEventListener("resize", updateLayout);
 
-    // Pre-create feet <use> elements
     for (let i = 0; i < FEET_STEPS; i++) {
       const el = document.createElementNS(
         "http://www.w3.org/2000/svg",
@@ -433,10 +431,6 @@ export function Manifesto() {
         p.y - ICON_SIZE / 2
       }px) rotate(${p.angle}deg)`;
     };
-
-    // Also handle the -x/-y offset via the initial attributes
-    // (already applied above), so transform here is just x/y/rotate.
-    // Because we set x/y attr to -ICON_SIZE/2, transform x/y is absolute.
 
     const onPointerMove = (clientX: number, clientY: number) => {
       const rect = svgEl.getBoundingClientRect();
@@ -467,7 +461,6 @@ export function Manifesto() {
         });
         feetPositions.length = FEET_STEPS;
 
-        // Refresh href for all subsequent feet
         for (let i = 1; i < FEET_STEPS; i++) {
           const isLeft = i % 2 === stepsCnt % 2;
           feetEls[i].setAttribute(
@@ -476,7 +469,6 @@ export function Manifesto() {
           );
           applyFootTransform(i);
         }
-        // Newest foot stays hidden until pointer stops
         feetEls[0].style.opacity = "0";
         applyFootTransform(0);
       }
@@ -495,10 +487,8 @@ export function Manifesto() {
     window.addEventListener("touchmove", onTouchMove, { passive: true });
 
     const stampFinalFeet = () => {
-      // Kill any pending tweens on the two newest feet
       gsap.killTweensOf([feetEls[0], feetEls[1]]);
 
-      // Foot 0 — the freshest one
       feetEls[0].setAttribute(
         "href",
         stepsCnt % 2 === 0 ? "#feet-left" : "#feet-right"
@@ -510,7 +500,6 @@ export function Manifesto() {
         ease: "power2.out",
       });
 
-      // Foot 1 — slightly delayed, sits next to foot 0
       feetEls[1].setAttribute(
         "href",
         stepsCnt % 2 === 1 ? "#feet-left" : "#feet-right"
@@ -531,7 +520,6 @@ export function Manifesto() {
 
       const decay = pointer.moving ? AGE_DECAY_MOVING : AGE_DECAY_STOPPED;
 
-      // Age out older footprints
       for (let i = 1; i < FEET_STEPS; i++) {
         const p = feetPositions[i];
         if (p.age > 0) {
@@ -540,7 +528,6 @@ export function Manifesto() {
         }
       }
 
-      // Update opacity only for feet 2+ (index 0/1 handled by stamp logic)
       for (let i = 2; i < FEET_STEPS; i++) {
         const target = Math.max(0, feetPositions[i].age);
         const vis = feetVisual[i];
@@ -550,15 +537,12 @@ export function Manifesto() {
         }
       }
 
-      // Detect movement → stop transition
       if (pointer.moving) {
         pointer.moving = false;
       } else if (performance.now() - pointer.lastStampTime > 60) {
-        // Only stamp if we actually had movement since the last stamp
         if (stepsCnt > 0 && feetPositions[0].age > 0) {
           pointer.lastStampTime = performance.now();
           stampFinalFeet();
-          // Reset so we don't stamp again until next movement
           feetPositions[0].age = 0;
         }
       }
@@ -567,7 +551,6 @@ export function Manifesto() {
     };
     rafId = requestAnimationFrame(render);
 
-    // Pause the render loop when section is off-screen
     const io = new IntersectionObserver(
       (entries) => {
         sectionVisible = entries[0].isIntersecting;
@@ -576,7 +559,6 @@ export function Manifesto() {
     );
     io.observe(section);
 
-    // --- Intro animation on first entry ---
     const introAnimation = () => {
       introAnimationIsPlaying = true;
       const rect = svgEl.getBoundingClientRect();
@@ -603,9 +585,6 @@ export function Manifesto() {
       onEnter: () => setTimeout(introAnimation, 300),
     });
 
-    // =========================================================
-    // CLEANUP
-    // =========================================================
     return () => {
       ctx.revert();
       introTrigger.kill();
@@ -640,7 +619,6 @@ export function Manifesto() {
       gsap.killTweensOf(allRevealInners);
       gsap.killTweensOf([stickerRef.current, deepTechRef.current, ctaRef.current]);
 
-      // Clear inline clip-path on cleanup so strict-mode remount is clean
       if (stickerRef.current)
         gsap.set(stickerRef.current, { clearProps: "clipPath,willChange" });
       if (deepTechRef.current)
@@ -663,8 +641,13 @@ export function Manifesto() {
       <style
         dangerouslySetInnerHTML={{
           __html: `
-            @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap'); 
-            .display-font { font-family: 'Space Grotesk', sans-serif; }
+            @import url('https://fonts.googleapis.com/css2?family=Anton&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+
+            .display-font {
+              font-family: 'Anton', sans-serif;
+              font-weight: 400;
+              letter-spacing: -0.01em;
+            }
 
             .reveal-mask {
               display: inline-block;
@@ -682,7 +665,6 @@ export function Manifesto() {
 
             /* ============================================
                ANIMATED DRAWING-LINES CTA
-               Themed for the orange section
                ============================================ */
             .manifesto-cta-btn {
               --line_color: #000000;
@@ -941,9 +923,11 @@ export function Manifesto() {
 
           <h2
             ref={headlineRef}
-            className="display-font text-3xl font-black uppercase leading-[0.95] tracking-[-0.04em] text-black sm:text-5xl md:text-6xl lg:text-[4.75rem]"
+            className="display-font mx-auto max-w-5xl text-3xl uppercase leading-[0.95] text-black sm:text-4xl md:text-5xl lg:text-[3.75rem]"
           >
-            NO BOUNDARIES, NO LIMITS, AND NO PREDEFINED BOXES.
+            NO BOUNDARIES, NO LIMITS,{" "}
+            <br className="hidden sm:block" />
+            AND NO PREDEFINED BOXES.
           </h2>
 
           <p

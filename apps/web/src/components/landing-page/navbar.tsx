@@ -5,10 +5,10 @@ import { motion } from "framer-motion";
 /*  Data                                                               */
 /* ------------------------------------------------------------------ */
 const links = [
-  { title: "Divisions", href: "#divisions" },
-  { title: "Hackathons", href: "#events" },
-  { title: "Projects", href: "#projects" },
-  { title: "Team", href: "#team" },
+  { title: "Home", href: "#hero-container" },
+  { title: "Manifesto", href: "#initiative" },
+  { title: "Events", href: "#events" },
+  { title: "Contact", href: "#contact" },
 ];
 
 const footerLinks = [
@@ -79,11 +79,20 @@ function NavLink({
   index: number;
   onNavigate: () => void;
 }) {
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const target = document.querySelector(link.href);
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    onNavigate();
+  };
+
   return (
     <a
       href={link.href}
-      onClick={onNavigate}
-      className="group flex items-center gap-3 py-[3px] no-underline"
+      onClick={handleClick}
+      className="group flex items-center gap-3 py-[3px] no-underline cursor-pointer"
     >
       {/* index */}
       <span className="w-6 shrink-0 text-[10px] font-bold tabular-nums tracking-[0.1em] text-black/35 transition-colors duration-500 group-hover:text-black/80">
@@ -149,12 +158,19 @@ function Navigation({
             <motion.a
               key={link.title}
               href={link.href}
-              onClick={onNavigate}
+              onClick={(e) => {
+                e.preventDefault();
+                const target = document.querySelector(link.href);
+                if (target) {
+                  target.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
+                onNavigate();
+              }}
               custom={i}
               variants={slideIn}
               initial="initial"
               animate={isActive ? "enter" : "exit"}
-              className="group flex items-center gap-2 text-xs font-semibold text-black/60 no-underline transition-colors duration-300 hover:text-black"
+              className="group flex items-center gap-2 text-xs font-semibold text-black/60 no-underline transition-colors duration-300 hover:text-black cursor-pointer"
             >
               {/* dot stretches into a dash */}
               <span className="block h-[3px] w-[3px] rounded-full bg-black/30 transition-all duration-400 ease-[cubic-bezier(0.76,0,0.24,1)] group-hover:w-3 group-hover:bg-black" />
@@ -166,12 +182,19 @@ function Navigation({
         {/* CTA with a shine sweep */}
         <motion.a
           href="#contact"
-          onClick={onNavigate}
+          onClick={(e) => {
+            e.preventDefault();
+            const target = document.querySelector("#contact");
+            if (target) {
+              target.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+            onNavigate();
+          }}
           custom={4}
           variants={slideIn}
           initial="initial"
           animate={isActive ? "enter" : "exit"}
-          className="group relative flex w-full items-center justify-center overflow-hidden rounded-full bg-[#111111] px-5 py-3 text-[10px] font-extrabold tracking-[0.12em] text-[#F4A62A] uppercase no-underline transition-transform duration-300 hover:scale-[1.02] active:scale-[0.98]"
+          className="group relative flex w-full items-center justify-center overflow-hidden rounded-full bg-[#111111] px-5 py-3 text-[10px] font-extrabold tracking-[0.12em] text-[#F4A62A] uppercase no-underline transition-transform duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
         >
           <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full" />
           <span className="relative">Join Portal</span>

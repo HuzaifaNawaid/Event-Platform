@@ -155,7 +155,11 @@ export default function Events() {
   }, [filter]); // Re-run when filter changes to apply animations to new cards
 
   return (
-    <section ref={sectionRef} className="relative bg-[#050508] text-white pt-24 pb-32 px-4 sm:px-8 lg:px-14 overflow-hidden border-t border-white/10" id="events">
+    <section
+      ref={sectionRef}
+      className="relative bg-[#050508] text-white pt-24 pb-12 px-4 sm:px-8 lg:px-14 overflow-hidden border-t border-white/10"
+      id="events"
+    >
       <style dangerouslySetInnerHTML={{ __html: GLOBAL_STYLES }} />
 
       {/* Background Ambient Effects */}
@@ -181,7 +185,7 @@ export default function Events() {
               <div className="relative inline-block transition-transform hover:rotate-3 hover:scale-105">
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-emerald-400 to-pink-500 transform translate-x-1.5 translate-y-1.5 border-2 border-black"></div>
                 <div className="relative bg-white text-black border-2 sm:border-3 border-black px-4 sm:px-6 py-1.5 sm:py-2 rounded-2xl shadow-[4px_5px_0px_#000000] font-black uppercase font-mono text-xs sm:text-base tracking-wider flex items-center gap-1.5 card-reveal-text">
-                  <span className="text-[#FF5500]">✦</span> AI / ML
+                  <span className="text-[#FF5500]">✦</span> AWS SBG BUKC
                 </div>
               </div>
             </div>
