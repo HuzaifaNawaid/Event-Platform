@@ -5,114 +5,343 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 /* =========================================================
-   FONTS & GLOBAL STYLES
+   Word-by-word reveal helpers (same pattern as Manifesto)
+   ========================================================= */
+function wrapWordsForReveal(element: HTMLElement): HTMLElement[] {
+  const innerSpans: HTMLElement[] = [];
+  const textNodes: Text[] = [];
+
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {
+    acceptNode: (node) => {
+      const parent = (node as Text).parentElement;
+      if (parent?.closest(".reveal-skip")) return NodeFilter.FILTER_REJECT;
+      if (!node.textContent || !node.textContent.trim())
+        return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT;
+    },
+  });
+
+  let node: Node | null;
+  while ((node = walker.nextNode())) textNodes.push(node as Text);
+
+  textNodes.forEach((textNode) => {
+    const parts = (textNode.textContent || "").split(/(\s+)/);
+    const fragment = document.createDocumentFragment();
+
+    parts.forEach((part) => {
+      if (part === "" || /^\s+$/.test(part)) {
+        fragment.appendChild(document.createTextNode(part));
+      } else {
+        const mask = document.createElement("span");
+        mask.className = "reveal-mask";
+
+        const inner = document.createElement("span");
+        inner.className = "reveal-inner";
+        inner.textContent = part;
+
+        mask.appendChild(inner);
+        fragment.appendChild(mask);
+        innerSpans.push(inner);
+      }
+    });
+
+    textNode.parentNode?.replaceChild(fragment, textNode);
+  });
+
+  return innerSpans;
+}
+
+function unwrapRevealWords(root: HTMLElement) {
+  root.querySelectorAll(".reveal-mask").forEach((mask) => {
+    const inner = mask.querySelector(".reveal-inner");
+    if (inner) {
+      mask.parentNode?.replaceChild(
+        document.createTextNode(inner.textContent || ""),
+        mask
+      );
+    }
+  });
+  root.normalize();
+}
+
+/* =========================================================
+   GLOBAL STYLES
    ========================================================= */
 const GLOBAL_STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;800;900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@1,400;1,600&display=swap');
 
-  .font-anton { font-family: 'Anton', sans-serif; }
   .font-inter { font-family: 'Inter', sans-serif; }
 
-  .offset-shadow {
-    position: relative;
+  .font-serif-light {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+
+  .reveal-mask {
     display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+    line-height: inherit;
+    padding-bottom: 0.15em;
+    margin-bottom: -0.15em;
   }
-  .offset-shadow .shadow-text {
-    position: absolute;
-    top: -8px;
-    left: -8px;
-    z-index: 1;
-    opacity: 0.3;
-    user-select: none;
+  .reveal-inner {
+    display: inline-block;
+    line-height: inherit;
+    will-change: transform;
+    transform: translateY(110%);
   }
-  .offset-shadow .front-text {
-    position: relative;
-    z-index: 2;
+
+  .stat-number { color: #ffffff; }
+  .stat-suffix { color: #ffffff; }
+
+  .stat-label {
+    display: inline-block;
+    padding: 0.14em 0.42em;
+    transform: rotate(-2deg);
+    border-radius: 8px;
+    line-height: 1;
+    color: var(--stat-text-color, #ffffff);
+    background-color: var(--stat-color, #F97316);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
   }
 `;
 
 /* =========================================================
-   COMPONENTS
+   PATH GEOMETRY — only the entry segment changed.
+   Starts higher (y=50) so the sweep to the right passes
+   well ABOVE card 1 instead of grazing its top edge.
    ========================================================= */
+const PATH_D =
+  "M -50 50 " +
+  "C 300 50, 700 150, 850 450 " +
+  "C 960 620, 800 780, 500 900 " +
+  "C 220 1020, 150 1000, 150 1150 " +
+  "C 150 1350, 500 1450, 750 1600 " +
+  "C 960 1720, 880 1800, 880 1900 " +
+  "C 880 2100, 500 2220, 250 2400 " +
+  "C 150 2500, 150 2550, 150 2650 " +
+  "C 150 2850, 500 2900, 1050 2950";
 
-function SpotifyFooter({ color }: { color: string }) {
-  return (
-    <div className="absolute bottom-4 left-6 right-6 flex items-center justify-between z-10">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill={color}>
-        <circle cx="12" cy="12" r="12" />
-        <path
-          d="M18 9.5C15.5 8.5 11 8.5 8.5 9.5C8 9.7 7.5 9.3 7.3 8.8C7.1 8.3 7.5 7.8 8 7.6C11 6.4 16 6.4 19 7.6C19.5 7.8 19.9 8.3 19.7 8.8C19.5 9.3 19 9.7 18 9.5ZM17.5 12.5C15.5 11.7 11.5 11.7 9.5 12.5C9 12.7 8.6 12.3 8.4 11.8C8.2 11.3 8.6 10.9 9.1 10.7C11.6 9.7 16 9.7 18.5 10.7C19 10.9 19.4 11.3 19.2 11.8C19 12.3 18.5 12.7 17.5 12.5ZM17 15.5C15.5 14.9 12.5 14.9 11 15.5C10.5 15.7 10.1 15.3 9.9 14.8C9.7 14.3 10.1 13.9 10.6 13.7C12.6 13 16 13 18 13.7C18.5 13.9 18.9 14.3 18.7 14.8C18.5 15.3 18 15.7 17 15.5Z"
-          fill={color === "#FFFFFF" || color === "rgba(255,255,255,0.6)" ? "#121212" : "#FFFFFF"}
-        />
-      </svg>
-      <span className="font-inter text-[10px] font-bold tracking-widest uppercase" style={{ color }}>
-        SPOTIFY.COM/WRAPPED
-      </span>
-    </div>
-  );
-}
-
-function WaveDecoration({ color }: { color: string }) {
-  return (
-    <svg
-      viewBox="0 0 400 100"
-      preserveAspectRatio="none"
-      className="absolute bottom-0 left-0 w-full h-[90px] pointer-events-none opacity-40"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d="M-20 50 C 40 20, 80 20, 140 50 S 240 80, 300 50 S 400 20, 460 50"
-        stroke={color}
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-      <path
-        d="M-20 70 C 40 40, 80 40, 140 70 S 240 100, 300 70 S 400 40, 460 70"
-        stroke={color}
-        strokeWidth="2"
-        strokeLinecap="round"
-        opacity="0.6"
-      />
-    </svg>
-  );
-}
+/* =========================================================
+   STATS DATA
+   ========================================================= */
+const STATS = [
+  {
+    value: 2500,
+    suffix: "+",
+    label: "Community Members",
+    desc: "Builders from every corner of the world, shipping and learning together.",
+    color: "#FACC15",
+    textColor: "#000000",
+  },
+  {
+    value: 50,
+    suffix: "",
+    label: "Team Members",
+    desc: "Core maintainers, mentors and organizers keeping the wheels turning.",
+    color: "#3B82F6",
+    textColor: "#FFFFFF",
+  },
+  {
+    value: 1,
+    suffix: "",
+    label: "Events",
+    desc: "Online and onsite hands-on workshops, deep dives and in-person meetups hosted this year.",
+    color: "#e63981",
+    textColor: "#FFFFFF",
+  },
+  {
+    value: null,
+    override: "Coming Soon",
+    label: "Hackathon",
+    desc: "We're cooking up the next big weekend sprint. Stay tuned.",
+    color: "#22C55E",
+    textColor: "#FFFFFF",
+  },
+];
 
 /* =========================================================
    MAIN SECTION
    ========================================================= */
 export function Stats() {
   const sectionRef = useRef<HTMLElement>(null);
+
+  const headlineRef = useRef<HTMLHeadingElement>(null);
+  const descRef = useRef<HTMLParagraphElement>(null);
+
+  const pathAreaRef = useRef<HTMLDivElement>(null);
+  const pathRef = useRef<SVGPathElement>(null);
+
   const cardRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const cardLabelRefs = useRef<Array<HTMLHeadingElement | null>>([]);
+  const cardDescRefs = useRef<Array<HTMLParagraphElement | null>>([]);
+  const cardNumRefs = useRef<Array<HTMLSpanElement | null>>([]);
 
   useEffect(() => {
     const section = sectionRef.current;
-    if (!section) return;
+    const pathArea = pathAreaRef.current;
+    const path = pathRef.current;
+    if (!section || !pathArea || !path) return;
 
-    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const prefersReduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    const wrappedEls: HTMLElement[] = [];
 
     const ctx = gsap.context(() => {
       const cards = cardRefs.current.filter(Boolean) as HTMLDivElement[];
+      const counters = cardNumRefs.current.filter(Boolean) as HTMLSpanElement[];
 
       if (prefersReduced) {
         gsap.set(cards, { opacity: 1, y: 0 });
+        gsap.set(path, { strokeDashoffset: 0 });
+        counters.forEach((el) => {
+          el.textContent = Number(el.dataset.count ?? 0).toLocaleString();
+        });
         return;
       }
 
-      gsap.set(cards, { opacity: 0, y: 50 });
+      gsap.set(cards, { opacity: 0, y: 70 });
+      counters.forEach((el) => {
+        el.textContent = "0";
+      });
 
-      ScrollTrigger.batch(cards, {
-        start: "top 85%",
-        onEnter: (batch) =>
-          gsap.to(batch, {
+      const length = path.getTotalLength();
+      gsap.set(path, {
+        strokeDasharray: `${length} ${length}`,
+        strokeDashoffset: length,
+      });
+
+      gsap.to(path, {
+        strokeDashoffset: 0,
+        ease: "none",
+        scrollTrigger: {
+          trigger: pathArea,
+          start: "top 72%",
+          end: "bottom bottom",
+          scrub: 0.6,
+        },
+      });
+
+      type RevealTarget = { el: HTMLElement | null; stagger: number };
+      const targets: RevealTarget[] = [
+        { el: headlineRef.current, stagger: 0.06 },
+        { el: descRef.current, stagger: 0.03 },
+      ];
+      cardLabelRefs.current.forEach((el) =>
+        targets.push({ el, stagger: 0.05 })
+      );
+      cardDescRefs.current.forEach((el) =>
+        targets.push({ el, stagger: 0.025 })
+      );
+
+      targets.forEach(({ el, stagger }) => {
+        if (!el) return;
+        const words = wrapWordsForReveal(el);
+        if (!words.length) return;
+
+        wrappedEls.push(el);
+        gsap.set(words, { y: "110%" });
+
+        const play = () => {
+          gsap.to(words, {
+            y: "0%",
+            duration: 0.9,
+            ease: "power3.out",
+            stagger,
+            overwrite: true,
+          });
+        };
+        const reset = () => {
+          gsap.to(words, {
+            y: "110%",
+            duration: 0.45,
+            ease: "power2.in",
+            stagger: stagger * 0.6,
+            overwrite: true,
+          });
+        };
+
+        ScrollTrigger.create({
+          trigger: el,
+          start: "top 88%",
+          onEnter: play,
+          onEnterBack: play,
+          onLeaveBack: reset,
+        });
+      });
+
+      cards.forEach((card) => {
+        const enter = () =>
+          gsap.to(card, {
             opacity: 1,
             y: 0,
             duration: 0.8,
             ease: "power3.out",
-            stagger: 0.15,
             overwrite: true,
-          }),
+          });
+        const leave = () =>
+          gsap.to(card, {
+            opacity: 0,
+            y: 70,
+            duration: 0.5,
+            ease: "power2.in",
+            overwrite: true,
+          });
+
+        ScrollTrigger.create({
+          trigger: card,
+          start: "top 88%",
+          onEnter: enter,
+          onEnterBack: enter,
+          onLeaveBack: leave,
+        });
       });
+
+      cardNumRefs.current.forEach((el, idx) => {
+        if (!el) return;
+        const card = cardRefs.current[idx];
+        if (!card) return;
+
+        const target = Number(el.dataset.count ?? 0);
+        if (!target) return;
+        const obj = { v: 0 };
+
+        const start = () => {
+          gsap.killTweensOf(obj);
+          obj.v = 0;
+          gsap.to(obj, {
+            v: target,
+            duration: 1.8,
+            ease: "power2.out",
+            onUpdate: () => {
+              el.textContent = Math.round(obj.v).toLocaleString();
+            },
+          });
+        };
+        const reset = () => {
+          gsap.killTweensOf(obj);
+          obj.v = 0;
+          el.textContent = "0";
+        };
+
+        ScrollTrigger.create({
+          trigger: card,
+          start: "top 82%",
+          onEnter: start,
+          onEnterBack: start,
+          onLeaveBack: reset,
+        });
+      });
+
+      return () => {
+        wrappedEls.forEach((el) => unwrapRevealWords(el));
+      };
     }, section);
 
     return () => ctx.revert();
@@ -122,198 +351,122 @@ export function Stats() {
     <section
       ref={sectionRef}
       id="stats"
-      className="relative w-full bg-[#121212] py-16 sm:py-24"
+      className="relative w-full overflow-hidden bg-black text-white"
     >
       <style dangerouslySetInnerHTML={{ __html: GLOBAL_STYLES }} />
 
-      <div className="mx-auto w-full max-w-[1000px] px-4 sm:px-6">
-        {/* Header Area */}
-        <div className="mb-10 sm:mb-14 text-center">
-          <h2 className="font-anton text-[48px] sm:text-[72px] leading-none text-white tracking-tight">
-            By Builders, For Builders.
-          </h2>
-          <p className="font-inter text-white/50 text-sm sm:text-base mt-4 font-medium tracking-wide max-w-[600px] mx-auto">
-            A look back at everything we've built, shipped, and accomplished together so far in 2026.
-          </p>
-        </div>
+      <div className="relative z-20 mx-auto w-full max-w-6xl px-6 pt-24 text-center sm:pt-32">
+        <h2
+          ref={headlineRef}
+          className="font-inter whitespace-nowrap text-[26px] font-black uppercase leading-none tracking-tighter text-white sm:text-[44px] md:text-[64px] lg:text-[80px]"
+        >
+          <span className="font-serif-light">By</span> Builders,{" "}
+          <span className="font-serif-light">For</span> Builders.
+        </h2>
 
-        {/* 2-Column Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-          
-          {/* Card 1: Dark / Purple */}
-          <div ref={(el) => { cardRefs.current[0] = el; }} className="relative overflow-hidden rounded-[20px] p-6 sm:p-8 flex flex-col justify-between min-h-[340px] sm:min-h-[400px] bg-[#121212]">
-            {/* Top Right Pattern */}
-            <svg width="120" height="120" viewBox="0 0 120 120" className="absolute top-0 right-0 opacity-20" fill="none">
-              <path d="M120 0 L40 120 M120 20 L60 120 M120 40 L80 120 M120 60 L100 120 M120 80 L120 120" stroke="#FFFFFF" strokeWidth="8" />
-            </svg>
-            
-            <div className="relative z-10">
-              <p className="font-inter font-extrabold text-[15px] sm:text-[17px] tracking-tight uppercase text-[#A99FF5]">
-                Hours Building
-              </p>
-            </div>
+        <p
+          ref={descRef}
+          className="font-inter mx-auto mt-8 max-w-[540px] text-sm font-medium tracking-wide text-zinc-400 sm:text-base"
+        >
+          A look back at everything we've built, shipped, and accomplished
+          together so far in 2026.
+        </p>
+      </div>
 
-            <div className="relative z-10 flex-1 flex flex-col justify-center my-4">
-              <div className="offset-shadow">
-                <span className="font-anton text-[90px] sm:text-[130px] leading-[0.8] tracking-tight shadow-text text-[#A99FF5]">
-                  55,173
-                </span>
-                <span className="font-anton text-[90px] sm:text-[130px] leading-[0.8] tracking-tight front-text text-[#A99FF5]">
-                  55,173
-                </span>
-              </div>
-            </div>
+      <div ref={pathAreaRef} className="relative w-full">
+        <svg
+          viewBox="0 0 1000 3000"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 h-full w-full"
+        >
+          <path
+            ref={pathRef}
+            d={PATH_D}
+            fill="none"
+            stroke="#f9ae44"
+            strokeWidth="60"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
 
-            <div className="relative z-10 max-w-[80%] mt-4">
-              <p className="font-inter font-medium text-[13px] sm:text-[15px] leading-snug text-white/70">
-                That's 38 days of pure craft and collaboration.
-              </p>
-            </div>
+        <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col px-6">
+          {STATS.map((stat, i) => {
+            const isLeft = i % 2 === 0;
+            const hasCounter = stat.value !== null && stat.value !== undefined;
 
-            <WaveDecoration color="rgba(255,255,255,0.2)" />
-            <SpotifyFooter color="rgba(255,255,255,0.6)" />
-          </div>
+            return (
+              <div
+                key={stat.label}
+                className={`flex min-h-[60vh] w-full items-center md:min-h-[75vh] ${
+                  isLeft ? "justify-start" : "justify-end"
+                }`}
+              >
+                <div
+                  ref={(el) => {
+                    cardRefs.current[i] = el;
+                  }}
+                  className={`relative w-full max-w-[340px] rounded-2xl bg-black/70 p-5 backdrop-blur-sm md:max-w-[400px] md:bg-transparent md:p-0 md:backdrop-blur-none ${
+                    isLeft ? "text-left" : "text-right"
+                  }`}
+                  style={
+                    {
+                      "--stat-color": stat.color,
+                      "--stat-text-color": stat.textColor ?? "#FFFFFF",
+                    } as React.CSSProperties
+                  }
+                >
+                  <div
+                    className={`flex items-baseline gap-1 ${
+                      isLeft ? "" : "justify-end"
+                    }`}
+                  >
+                    {hasCounter ? (
+                      <>
+                        <span
+                          ref={(el) => {
+                            cardNumRefs.current[i] = el;
+                          }}
+                          data-count={stat.value}
+                          className="stat-number font-inter text-[56px] font-black leading-none tracking-tighter sm:text-[72px]"
+                        >
+                          0
+                        </span>
+                        {stat.suffix && (
+                          <span className="stat-suffix font-inter text-3xl font-black leading-none sm:text-4xl">
+                            {stat.suffix}
+                          </span>
+                        )}
+                      </>
+                    ) : (
+                      <span className="stat-number font-inter text-[36px] font-black leading-none tracking-tighter sm:text-[48px]">
+                        {stat.override}
+                      </span>
+                    )}
+                  </div>
 
-          {/* Card 2: Beige / Red */}
-          <div ref={(el) => { cardRefs.current[1] = el; }} className="relative overflow-hidden rounded-[20px] p-6 sm:p-8 flex flex-col justify-between min-h-[340px] sm:min-h-[400px] bg-[#F2EFE9]">
-            {/* Top Right Pattern */}
-            <svg width="120" height="120" viewBox="0 0 120 120" className="absolute top-0 right-0 opacity-10" fill="none">
-              <circle cx="120" cy="0" r="40" stroke="#121212" strokeWidth="4" />
-              <circle cx="120" cy="0" r="60" stroke="#121212" strokeWidth="4" />
-              <circle cx="120" cy="0" r="80" stroke="#121212" strokeWidth="4" />
-              <circle cx="120" cy="0" r="100" stroke="#121212" strokeWidth="4" />
-            </svg>
+                  <h3
+                    ref={(el) => {
+                      cardLabelRefs.current[i] = el;
+                    }}
+                    className="font-inter mt-5 text-[22px] font-black uppercase leading-none tracking-tighter sm:text-[30px]"
+                  >
+                    <span className="stat-label">{stat.label}</span>
+                  </h3>
 
-            <div className="relative z-10">
-              <p className="font-inter font-extrabold text-[15px] sm:text-[17px] tracking-tight uppercase text-[#121212]">
-                Our Community Age
-              </p>
-            </div>
-
-            <div className="relative z-10 flex-1 flex flex-col justify-center my-4">
-              <div className="offset-shadow">
-                <span className="font-anton text-[120px] sm:text-[180px] leading-[0.8] tracking-tight shadow-text text-[#F5503E]">
-                  70
-                </span>
-                <span className="font-anton text-[120px] sm:text-[180px] leading-[0.8] tracking-tight front-text text-[#F5503E]">
-                  70
-                </span>
-              </div>
-            </div>
-
-            <div className="relative z-10 max-w-[80%] mt-4">
-              <p className="font-inter font-medium text-[13px] sm:text-[15px] leading-snug text-[#121212]/70">
-                Since we started building from the ground up in 2026.
-              </p>
-            </div>
-
-            <WaveDecoration color="rgba(18,18,18,0.15)" />
-            <SpotifyFooter color="rgba(18,18,18,0.6)" />
-          </div>
-
-          {/* Card 3: Purple / Illustration */}
-          <div ref={(el) => { cardRefs.current[2] = el; }} className="relative overflow-hidden rounded-[20px] p-6 sm:p-8 flex flex-col justify-between min-h-[340px] sm:min-h-[400px] bg-[#A99FF5]">
-            {/* Top Right Pattern */}
-            <svg width="120" height="120" viewBox="0 0 120 120" className="absolute top-0 right-0 opacity-10" fill="none">
-              <rect x="60" y="0" width="20" height="20" fill="#121212" />
-              <rect x="100" y="0" width="20" height="20" fill="#121212" />
-              <rect x="80" y="20" width="20" height="20" fill="#121212" />
-              <rect x="60" y="40" width="20" height="20" fill="#121212" />
-              <rect x="100" y="40" width="20" height="20" fill="#121212" />
-              <rect x="80" y="60" width="20" height="20" fill="#121212" />
-              <rect x="60" y="80" width="20" height="20" fill="#121212" />
-              <rect x="100" y="80" width="20" height="20" fill="#121212" />
-            </svg>
-
-            <div className="relative z-10">
-              <p className="font-inter font-extrabold text-[15px] sm:text-[17px] tracking-tight uppercase text-[#121212]">
-                Core Builders Club
-              </p>
-            </div>
-
-            <div className="relative z-10 flex-1 flex flex-col items-center justify-center my-4 gap-4 text-center">
-              {/* Simple SVG illustration mimicking the Genie Lamp */}
-              <svg width="100" height="100" viewBox="0 0 100 100" fill="none" className="drop-shadow-sm">
-                <path d="M30 70 Q50 90 70 70" stroke="#121212" strokeWidth="4" fill="none" />
-                <path d="M40 40 Q50 20 60 40" stroke="#121212" strokeWidth="4" fill="none" />
-                <path d="M20 60 Q50 80 80 60" stroke="#121212" strokeWidth="6" fill="none" />
-                <circle cx="50" cy="60" r="15" fill="#121212" />
-                <circle cx="45" cy="58" r="2" fill="#A99FF5" />
-                <circle cx="55" cy="58" r="2" fill="#A99FF5" />
-                <path d="M45 65 Q50 70 55 65" stroke="#A99FF5" strokeWidth="2" fill="none" />
-              </svg>
-              <div className="font-anton text-[32px] sm:text-[42px] leading-[0.9] tracking-tight text-[#121212]">
-                My Role: Collector
-              </div>
-            </div>
-
-            <div className="relative z-10 max-w-[80%] mt-4">
-              <p className="font-inter font-medium text-[13px] sm:text-[15px] leading-snug text-[#121212]/80">
-                You often save code, building a massive open-source collection.
-              </p>
-            </div>
-
-            <WaveDecoration color="rgba(18,18,18,0.2)" />
-            <SpotifyFooter color="rgba(18,18,18,0.6)" />
-          </div>
-
-          {/* Card 4: Dark / Grid */}
-          <div ref={(el) => { cardRefs.current[3] = el; }} className="relative overflow-hidden rounded-[20px] p-6 sm:p-8 flex flex-col justify-between min-h-[340px] sm:min-h-[400px] bg-[#121212]">
-            {/* Top Right Pattern */}
-            <svg width="120" height="120" viewBox="0 0 120 120" className="absolute top-0 right-0 opacity-20" fill="none">
-              <path d="M120 0 L40 120 M120 20 L60 120 M120 40 L80 120 M120 60 L100 120 M120 80 L120 120" stroke="#FFFFFF" strokeWidth="8" />
-            </svg>
-
-            <div className="relative z-10">
-              <p className="font-inter font-extrabold text-[15px] sm:text-[17px] tracking-tight uppercase text-white">
-                You're in great company.
-              </p>
-            </div>
-
-            <div className="relative z-10 flex-1 flex flex-col justify-center my-4">
-              <div className="offset-shadow">
-                <span className="font-anton text-[90px] sm:text-[130px] leading-[0.8] tracking-tight shadow-text text-[#A99FF5]">
-                  34%
-                </span>
-                <span className="font-anton text-[90px] sm:text-[130px] leading-[0.8] tracking-tight front-text text-[#A99FF5]">
-                  34%
-                </span>
-              </div>
-              <p className="font-inter font-medium text-[13px] sm:text-[15px] leading-snug text-white/70 mt-2">
-                of global listeners are in your club.
-              </p>
-            </div>
-
-            <div className="relative z-10 mt-4">
-              <p className="font-inter font-bold text-[11px] tracking-widest uppercase text-white/50 mb-3">
-                Your club favorites
-              </p>
-              <div className="grid grid-cols-3 gap-2">
-                <div className="aspect-square rounded bg-white/10 flex items-center justify-center overflow-hidden">
-                  <div className="w-full h-full bg-gradient-to-br from-purple-400 to-pink-500 opacity-80" />
-                </div>
-                <div className="aspect-square rounded bg-white/10 flex items-center justify-center overflow-hidden">
-                  <div className="w-full h-full bg-gradient-to-br from-blue-400 to-cyan-300 opacity-80" />
-                </div>
-                <div className="aspect-square rounded bg-white/10 flex items-center justify-center overflow-hidden">
-                  <div className="w-full h-full bg-gradient-to-br from-yellow-400 to-orange-500 opacity-80" />
-                </div>
-                <div className="aspect-square rounded bg-white/10 flex items-center justify-center overflow-hidden">
-                  <div className="w-full h-full bg-gradient-to-br from-red-400 to-rose-500 opacity-80" />
-                </div>
-                <div className="aspect-square rounded bg-white/10 flex items-center justify-center overflow-hidden">
-                  <div className="w-full h-full bg-gradient-to-br from-green-400 to-emerald-500 opacity-80" />
-                </div>
-                <div className="aspect-square rounded bg-white/10 flex items-center justify-center overflow-hidden">
-                  <div className="w-full h-full bg-gradient-to-br from-indigo-400 to-violet-500 opacity-80" />
+                  <p
+                    ref={(el) => {
+                      cardDescRefs.current[i] = el;
+                    }}
+                    className="font-inter mt-4 text-[13px] font-medium leading-snug text-zinc-400 sm:text-[15px]"
+                  >
+                    {stat.desc}
+                  </p>
                 </div>
               </div>
-            </div>
-
-            <WaveDecoration color="rgba(255,255,255,0.2)" />
-            <SpotifyFooter color="rgba(255,255,255,0.6)" />
-          </div>
-
+            );
+          })}
         </div>
       </div>
     </section>

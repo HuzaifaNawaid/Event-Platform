@@ -4,7 +4,7 @@ import type { Route } from "./+types/_index";
 import { Navbar } from "@/components/landing-page/navbar";
 import { Hero } from "@/components/landing-page/hero";
 import { Manifesto } from "@/components/landing-page/manifesto";
-import { Events } from "@/components/landing-page/events";
+import Events from "@/components/landing-page/events";
 import { Stats } from "@/components/landing-page/stats";
 import { Footer } from "@/components/landing-page/footer";
 
