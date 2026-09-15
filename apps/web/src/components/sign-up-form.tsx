@@ -38,8 +38,8 @@ export default function SignUpForm({ onSwitchToSignIn }: { onSwitchToSignIn: () 
         },
         {
           onSuccess: () => {
-            navigate("/dashboard");
-            toast.success("Sign up successful");
+            navigate(`/verify-otp?email=${encodeURIComponent(value.email)}`);
+            toast.success("Account created! check your email for verification code.");
           },
           onError: (error) => {
             toast.error(error.error.message || error.error.statusText);

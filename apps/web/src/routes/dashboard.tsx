@@ -15,6 +15,9 @@ export default function Dashboard() {
     if (!session && !isPending) {
       navigate("/login");
     }
+    if (session && !session.user.emailVerified && !isPending) {
+      navigate(`/verify-otp?email=${encodeURIComponent(session.user.email)}`);
+    }
   }, [session, isPending, navigate]);
 
   if (isPending) {

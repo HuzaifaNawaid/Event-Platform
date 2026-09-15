@@ -5,7 +5,7 @@ import { Label } from "@aws-platform/ui/components/label";
 import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import { IdCard ,Eye, EyeOff, Loader2 } from "lucide-react";    //imported eye icon
+import { IdCard ,Eye, EyeOff, Loader2, KeyRound } from "lucide-react";    //imported eye icon
 import z from "zod";
 
 import { authClient } from "@/lib/auth-client";
@@ -146,6 +146,12 @@ export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () 
               </Button>
             )}
           </form.Subscribe>
+          <div className="text-center">
+            <button type="button" onClick={() => navigate("/forgot-password")}
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+              Forgot Password?
+            </button>
+          </div>
         </form>
 
         <div className="mt-6 text-center text-xs text-muted-foreground">
