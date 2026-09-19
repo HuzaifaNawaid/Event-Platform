@@ -5,7 +5,7 @@ import { Label } from "@aws-platform/ui/components/label";
 import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-import { IdCard ,Eye, EyeOff, Loader2, KeyRound } from "lucide-react";    //imported eye icon
+import { IdCard, Eye, EyeOff, Loader2 } from "lucide-react";
 import z from "zod";
 
 import { authClient } from "@/lib/auth-client";
@@ -112,8 +112,9 @@ export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () 
                     className="pr-10"
                   />
                   <button
-                    type="button"      //eye icon used here
+                    type="button"
                     onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
                     {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}

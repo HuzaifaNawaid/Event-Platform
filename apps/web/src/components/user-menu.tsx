@@ -50,15 +50,7 @@ export default function UserMenu() {
           <DropdownMenuItem>{session.user.email}</DropdownMenuItem>
           <DropdownMenuItem
             variant="destructive"
-            onClick={() => {
-              authClient.signOut({
-                fetchOptions: {
-                  onSuccess: () => {
-                    navigate("/");
-                  },
-                },
-              });
-            }}
+            onClick={handleSignOut}
           >
             Sign Out
           </DropdownMenuItem>

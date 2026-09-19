@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@aws-platform/ui/components/button";
 import { Input } from "@aws-platform/ui/components/input";
 import { useNavigate, useSearchParams } from "react-router";
@@ -16,16 +16,6 @@ export default function VerifyOtpForm() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
-  const [otpSent, setOtpSent] = useState(false);
-
-  useEffect(() => {
-    if (!email || otpSent) return;
-    setOtpSent(true);
-    authClient.emailOtp.sendVerificationOtp({
-      email,
-      type: "email-verification",
-    });
-  }, [email, otpSent]);
 
   const startCooldown = () => {
     setResendCooldown(60);
@@ -103,8 +93,9 @@ export default function VerifyOtpForm() {
 
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold">Verification Code</label>
+            <label htmlFor="otp" className="text-xs font-semibold">Verification Code</label>
             <Input
+              id="otp"
               type="text"
               inputMode="numeric"
               maxLength={6}
