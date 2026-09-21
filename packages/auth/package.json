@@ -15,6 +15,7 @@
     "@aws-platform/env": "workspace:*",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
+    "resend": "^6.28.0",
     "zod": "catalog:"
   },
   "devDependencies": {

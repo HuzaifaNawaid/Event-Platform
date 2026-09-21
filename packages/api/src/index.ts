@@ -16,6 +16,13 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
       cause: "No session",
     });
   }
+  if (!ctx.session.user.emailVerified) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Email verification required",
+      cause: "Email not verified",
+    });
+  }
   return next({
     ctx: {
       ...ctx,

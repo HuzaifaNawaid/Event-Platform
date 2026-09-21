@@ -15,16 +15,23 @@ export default function Dashboard() {
     if (!session && !isPending) {
       navigate("/login");
     }
+    if (session && !session.user.emailVerified && !isPending) {
+      navigate(`/verify-otp?email=${encodeURIComponent(session.user.email)}`);
+    }
   }, [session, isPending, navigate]);
 
-  if (isPending) {
+  if (isPending || !session) {
+    return <div>Loading...</div>;
+  }
+
+  if (!session.user.emailVerified) {
     return <div>Loading...</div>;
   }
 
   return (
     <div>
       <h1>Dashboard</h1>
-      <p>Welcome {session?.user.name}</p>
+      <p>Welcome {session.user.name}</p>
       <p>API: {privateData.data?.message}</p>
     </div>
   );
